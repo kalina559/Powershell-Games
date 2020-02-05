@@ -131,6 +131,32 @@ Function checkIfGameOver ($a,$b)
     }
 } 
 
+
+################Wybór trybu
+$ModeWindow = New-Object system.Windows.Forms.Form
+$ModeWindow.Width = 300
+$ModeWindow.Height = 150
+$ModeWindow.MaximizeBox = $False
+$ModeWindow.MinimizeBox = $False
+$ModeWindow.WindowState = "Normal"
+$ModeWindow.SizeGripStyle = "Hide"
+$ModeWindow.StartPosition = "CenterScreen"
+$ModeWindow.FormBorderStyle = 'Fixed3D' #None
+$ModeWindow.Text = "Tryb Gry"
+
+$firstMode = New-Object System.Windows.Forms.RadioButton
+$secondMode = New-Object System.Windows.Forms.RadioButton
+$firstMode.Checked = $True
+$firstMode.Name = "Warcaby"
+$firstMode.Text = "Warcaby"
+$firstMode.Location = New-Object System.Drawing.Point(110,10)
+$secondMode.Name = "Kółko i krzyżyk"
+$secondMode.Text = "Kółko i krzyżyk"
+$secondMode.Location = New-Object System.Drawing.Point(110,30)
+$secondMode.Width = 200
+$ModeWindow.Controls.Add($firstMode)
+$ModeWindow.Controls.Add($secondMode)
+
 ##############################################Ustawienia początkowe użytkownika
 #Okno ustawień
 $SettingsWindow = New-Object system.Windows.Forms.Form
@@ -142,7 +168,13 @@ $SettingsWindow.WindowState = "Normal"
 $SettingsWindow.SizeGripStyle = "Hide"
 $SettingsWindow.StartPosition = "CenterScreen"
 $SettingsWindow.FormBorderStyle = 'Fixed3D' #None
-$SettingsWindow.Text = "Rozmiar planszy"
+$SettingsWindow.Text = "Rozmiar planszy"###Przycisk 'dalej'
+$NextButton = New-Object System.Windows.Forms.Button
+$NextButton.Location=New-Object System.Drawing.Size(25,70) 
+$NextButton.Size = New-Object System.Drawing.Size(250,40)
+$NextButton.Font = New-Object System.Drawing.Font("Lucida Console",16,[System.Drawing.FontStyle]::Regular)
+$NextButton.Text = "Rozpocznij grę"
+$NextButton.Add_Click({confirmSettings($ModeWindow)})
 
 #SetButton 
 $SetButton = New-Object System.Windows.Forms.Button
@@ -160,32 +192,34 @@ $DimensionUpDown.Value=6
 $DimensionUpDown.Maximum=7
 $DimensionUpDown.Minimum=3
 
-#HeightLabel
+#DimensionLabel
 $DimensionLabel = New-Object System.Windows.Forms.Label
-$DimensionLabel.Text = "wymiar planszy"
+$DimensionLabel.Text = "Wymiar planszy"
 $DimensionLabel.Width = 150
 $DimensionLabel.Location=New-Object System.Drawing.Size(160,10) 
 
-###########dodawanie obiektów do ustawien poczatkowych
+###########dodawanie obiektów do wyboru trybu
+$ModeWindow.Controls.Add($NextButton)
 
+###########dodawanie obiektów do ustawien poczatkowych
 $SettingsWindow.Controls.Add($SetButton)
 $SettingsWindow.Controls.Add($DimensionUpDown)
 $SettingsWindow.Controls.Add($DimensionLabel)
 
 #Okno gry
-$GameWindow = New-Object system.Windows.Forms.Form
-$GameWindow.Width = 1000
-$GameWindow.Height = 667
-$GameWindow.MaximizeBox = $False
-$GameWindow.MinimizeBox = $False
-$GameWindow.WindowState = "Normal"
-$GameWindow.SizeGripStyle = "Hide"
-$GameWindow.StartPosition = "CenterScreen"
-$GameWindow.FormBorderStyle = 'Fixed3D'
+$TicTacToeWindow = New-Object system.Windows.Forms.Form
+$TicTacToeWindow.Width = 1000
+$TicTacToeWindow.Height = 667
+$TicTacToeWindow.MaximizeBox = $False
+$TicTacToeWindow.MinimizeBox = $False
+$TicTacToeWindow.WindowState = "Normal"
+$TicTacToeWindow.SizeGripStyle = "Hide"
+$TicTacToeWindow.StartPosition = "CenterScreen"
+$TicTacToeWindow.FormBorderStyle = 'Fixed3D'
 
 #Obiekty w oknie głównym
 $GameImage = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\background.jfif")
-$GameWindow.BackgroundImage = $GameImage
+$TicTacToeWindow.BackgroundImage = $GameImage
 
 $StartButton= New-Object System.Windows.Forms.Button
 $StartButton.Location=New-Object System.Drawing.Size(350,20) 
@@ -193,7 +227,7 @@ $StartButton.Size = New-Object System.Drawing.Size(300,100)
 $StartButton.Text = "Start"
 $StartButton.Font = New-Object System.Drawing.Font("Lucida Console",30,[System.Drawing.FontStyle]::Regular)
 $StartButton.Add_Click({startClick})
-$GameWindow.controls.add($StartButton)
+$TicTacToeWindow.controls.add($StartButton)
 
 #zmienna do przełączania znaku, którym gra użytkownik (początkowo to kółko)
 $global:buttonType = "O"
@@ -205,13 +239,13 @@ $typeButton.Height = $typeImage.Size.Height
 $typeButton.Image = $typeImage
 $typeButton.Location = New-Object System.Drawing.Size(900,300) 
 #$typeButton.Add_Click({typeClick})
-$GameWindow.controls.add($typeButton)
+$TicTacToeWindow.controls.add($typeButton)
 
 #InfoLabel - informacja o wygranej i ruchach
 $infoLabel = New-Object System.Windows.Forms.Label
 $infoLabel.Text = "gra w trakcie..."
 $infoLabel.Location=New-Object System.Drawing.Size(475,600) 
-$GameWindow.controls.add($infoLabel)
+$TicTacToeWindow.controls.add($infoLabel)
 
 #Okno informujace o wygranej
 $winWindow = New-Object system.Windows.Forms.Form
@@ -240,8 +274,18 @@ $winWindow.Controls.Add($restartButton)
 #Image - obraz który jest początkowo na GameElementach, po prostu pusty kwadrat
 $Image = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\field.png")
 
+
+
 #Gra
-$SettingsWindow.ShowDialog()
+$ModeWindow.ShowDialog()
+if($secondMode.Checked)
+    {
+    $SettingsWindow.ShowDialog()
+    }
+
+
+
+
 #Obiekty wstawione dynamicznie, po ustawieniu opcji
 $GameElements = New-Object 'object[,]' ($DimensionUpDown.Value),($DimensionUpDown.Value)
 #Tablica przechowujaca dane o polach, 0 - puste, 1 - krzyzyk, 2 - kolko
@@ -331,9 +375,13 @@ For ([int]$i=0; $i -lt $DimensionUpDown.Value; $i++)
         76 {$GameElements[$i,$j].Add_Click({elementClick 7 6})}
         77 {$GameElements[$i,$j].Add_Click({elementClick 7 7})}
         }
-        $GameWindow.controls.add(($GameElements[$i,$j]))
+        $TicTacToeWindow.controls.add(($GameElements[$i,$j]))
     }  
 }
 
-$GameWindow.ShowDialog()
+
+if($secondMode.Checked)
+    {
+    $TicTacToeWindow.ShowDialog()
+    }
 
