@@ -3,8 +3,7 @@
 
 Function confirmSettings ($Form) 
 {
-    $Form.Close()    
-            
+    $Form.Close()             
 }
 
 Function startClick
@@ -18,6 +17,7 @@ Function startClick
             For ($j=0; $j -lt $DimensionUpDown.Value; $j++) 
             {
                 $GameElements[$i,$j].Visible=1
+                $GameElements[$i,$j].Name='nic'
             }
          }        
 
@@ -31,10 +31,22 @@ Function startClick
                 try{$Global:ElementsOrder.RemoveAt(0)} catch {}
                 $GameElements[$i,$j].Image =$Image
                 $GameElements[$i,$j].Visible=1
+                $GameElements[$i,$j].Name='nic'
             }
         }
-    }           
+    }  
+    
+    $infoLabel.Text = "gra w trakcie..."         
 }
+
+Function restartAfterWin ($Form) 
+{
+    $Form.Text = "Wygrywa: " + $global:buttonType
+    $Form.Hide()
+    startClick 
+    $infoLabel.Text = "gra w trakcie..."
+}
+
 Function elementClick ($a, $b)
 {
     [string] $type
@@ -47,24 +59,77 @@ Function elementClick ($a, $b)
     $type = "O.png"
     }    
 
-    $GameElements[$a,$b].Image = [system.drawing.image]::FromFile($PSScriptRoot + "\" + $type)
-            
+    #Blokada dodania elementu jesli jakis juz jest w danym polu (0 - pole puste)
+    if($GameElements[$a,$b].Name -eq 'nic')
+    {
+        $GameElements[$a,$b].Image = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\" + $type)
+        $GameElements[$a,$b].Name = $global:buttonType
+        #Write-Host $a
+        checkIfGameOver ($a,$b)
+        typeChange
+    }        
 }
 
-Function typeClick 
-{
-    
+Function typeChange 
+{    
     if($global:buttonType -eq "O")
     {
-    $global:buttonType = "X"
+        $global:buttonType = "X"
     }
     else
     {
-    $global:buttonType = "O"
+        $global:buttonType = "O"
     }  
 
-    $typeButton.Image = [system.drawing.image]::FromFile($PSScriptRoot + "\" + $global:buttonType + ".png")              
+    $typeButton.Image = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\" + $global:buttonType + ".png")              
 }
+
+Function checkIfGameOver ($a,$b)
+{
+    #Write-Host $DimensionUpDown.Value
+
+    [string] $winO = ("OOOOOOO").Substring(0, $DimensionUpDown.Value)
+    [string] $winX = ("XXXXXXX").Substring(0, $DimensionUpDown.Value)
+    [string] $checkHeight = ""
+    [string] $checkWidth = ""
+    [string] $checkDiagonal1 = ""
+    [string] $checkDiagonal2 = ""
+    #Write-Host $winO
+    #Write-Host $a[0]#0-pion 1-poziom
+    #Write-Host $a[1]
+
+    For ([int]$i=0; $i -lt $DimensionUpDown.Value; $i++) 
+    {
+        For ([int]$j=0; $j -lt $DimensionUpDown.Value; $j++) 
+        {
+            Write-Host $GameElements[$i, $j].Name
+            $checkHeight = $checkHeight + $GameElements[$i, $j].Name
+            $checkWidth = $checkWidth + $GameElements[$j, $i].Name
+            $checkDiagonal1 = $checkDiagonal1 + $GameElements[$j, $j].Name
+            $checkDiagonal2 = $checkDiagonal2 + $GameElements[[int]($DimensionUpDown.Value-$j-1), $j].Name
+        }
+
+        Write-Host $checkHeight
+        
+        if($checkWidth -eq $winO -or $checkHeight -eq $winO -or $checkDiagonal1 -eq $winO -or $checkDiagonal2 -eq $winO)
+        {
+            $infoLabel.Text = "Wygrana: O"
+            $winWindow.Show()
+        }
+        elseif($checkWidth -eq $winX -or $checkHeight -eq $winX -or $checkDiagonal1 -eq $winX -or $checkDiagonal2 -eq $winX)
+        {
+            $infoLabel.Text = "Wygrana: X"
+            $winWindow.Show()
+        }
+        else
+        {
+            $checkHeight = ""
+            $checkWidth = ""
+            $checkDiagonal1=""
+            $checkDiagonal2=""
+        }
+    }
+} 
 
 ##############################################Ustawienia początkowe użytkownika
 #Okno ustawień
@@ -79,7 +144,7 @@ $SettingsWindow.StartPosition = "CenterScreen"
 $SettingsWindow.FormBorderStyle = 'Fixed3D' #None
 $SettingsWindow.Text = "Rozmiar planszy"
 
-#SetButton
+#SetButton 
 $SetButton = New-Object System.Windows.Forms.Button
 $SetButton.Location=New-Object System.Drawing.Size(25,70) 
 $SetButton.Size = New-Object System.Drawing.Size(250,40)
@@ -97,7 +162,8 @@ $DimensionUpDown.Minimum=3
 
 #HeightLabel
 $DimensionLabel = New-Object System.Windows.Forms.Label
-$DimensionLabel.Text = "ilość kolumn"
+$DimensionLabel.Text = "wymiar planszy"
+$DimensionLabel.Width = 150
 $DimensionLabel.Location=New-Object System.Drawing.Size(160,10) 
 
 ###########dodawanie obiektów do ustawien poczatkowych
@@ -118,7 +184,7 @@ $GameWindow.StartPosition = "CenterScreen"
 $GameWindow.FormBorderStyle = 'Fixed3D'
 
 #Obiekty w oknie głównym
-$GameImage = [system.drawing.image]::FromFile($PSScriptRoot + "\background.jfif")
+$GameImage = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\background.jfif")
 $GameWindow.BackgroundImage = $GameImage
 
 $StartButton= New-Object System.Windows.Forms.Button
@@ -133,25 +199,57 @@ $GameWindow.controls.add($StartButton)
 $global:buttonType = "O"
 
 $typeButton = new-object Windows.Forms.PictureBox
-$typeImage = [system.drawing.image]::FromFile($PSScriptRoot + "\O.png")
+$typeImage = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\O.png")
 $typeButton.Width = $typeImage.Size.Width
 $typeButton.Height = $typeImage.Size.Height
 $typeButton.Image = $typeImage
 $typeButton.Location = New-Object System.Drawing.Size(900,300) 
-$typeButton.Add_Click({typeClick})
+#$typeButton.Add_Click({typeClick})
 $GameWindow.controls.add($typeButton)
 
+#InfoLabel - informacja o wygranej i ruchach
+$infoLabel = New-Object System.Windows.Forms.Label
+$infoLabel.Text = "gra w trakcie..."
+$infoLabel.Location=New-Object System.Drawing.Size(475,600) 
+$GameWindow.controls.add($infoLabel)
+
+#Okno informujace o wygranej
+$winWindow = New-Object system.Windows.Forms.Form
+$winWindow.Width = 400
+$winWindow.Height = 250
+$winWindow.MaximizeBox = $False
+$winWindow.MinimizeBox = $False
+$winWindow.WindowState = "Normal"
+$winWindow.SizeGripStyle = "Hide"
+$winWindow.StartPosition = "CenterScreen"
+$winWindow.FormBorderStyle = 'Fixed3D' #None
+$winWindow.Text = ""
+
+#Button do restartu gry po wygranej
+$restartButton = New-Object System.Windows.Forms.Button
+$restartButton.Location=New-Object System.Drawing.Size(25,70) 
+$restartButton.Size = New-Object System.Drawing.Size(300,50)
+$restartButton.Font = New-Object System.Drawing.Font("Lucida Console",14,[System.Drawing.FontStyle]::Regular)
+$restartButton.Text = "Zagraj ponownie!"
+$restartButton.Add_Click({restartAfterWin($winWindow)})
+
+###########dodawanie obiektów do ustawien poczatkowych
+$winWindow.Controls.Add($restartButton)
+
+
 #Image - obraz który jest początkowo na GameElementach, po prostu pusty kwadrat
-$Image = [system.drawing.image]::FromFile($PSScriptRoot + "\field.png")
+$Image = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\field.png")
 
 #Gra
 $SettingsWindow.ShowDialog()
 #Obiekty wstawione dynamicznie, po ustawieniu opcji
 $GameElements = New-Object 'object[,]' ($DimensionUpDown.Value),($DimensionUpDown.Value)
+#Tablica przechowujaca dane o polach, 0 - puste, 1 - krzyzyk, 2 - kolko
+[int[,]]$GameData = [int[,]]::new(($WidthUpDown.Value),($HeightUpDown.Value))
 
 $global:isWin=0      #0 - rozgrywka trwa, 1 - zwycięstwo, -1 - porażka
 
-#Tworzenie pól ( Bartek mówił że niestety nie da się tego ładnie zrobić, trzeba switch casem)
+#Tworzenie pól ( niestety nie da się tego ładnie zrobić, trzeba switch casem)
 For ([int]$i=0; $i -lt $DimensionUpDown.Value; $i++) 
 {
     For ($j=0; $j -lt $DimensionUpDown.Value; $j++) 
@@ -161,7 +259,8 @@ For ([int]$i=0; $i -lt $DimensionUpDown.Value; $i++)
         $GameElements[$i,$j].Height = $Image.Size.Height
         $GameElements[$i,$j].Image = $Image
         $GameElements[$i,$j].Visible=0
-        $GameElements[$i,$j].Location = New-Object System.Drawing.Size((300+ $i * $Image.Width),(150 + $j*$Image.Height))       
+        $GameElements[$i,$j].Location = New-Object System.Drawing.Size((300+ $i * $Image.Width),(150 + $j*$Image.Height))
+        $GameElements[$i,$j].Name='nic'       
 
         $temp =10*$i+$j
         switch($temp)
