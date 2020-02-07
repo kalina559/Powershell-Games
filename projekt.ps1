@@ -73,9 +73,42 @@ Function ticTacToeElementClick ($a, $b)
 
 Function checkersElementClick ($a, $b)
 { 
-if($global:availabilityCheck -eq 1)
-{
-    For ([int]$i=0; $i -lt 8; $i++) 
+
+    if($GameElements[$a,$b].Name -eq 'available')
+    {
+        if($GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name -eq 'black')
+        {
+            if(($global:checkedCoordinates[0] + $global:checkedCoordinates[1])%2 -eq 0)
+            {
+                $GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Image = $brownField
+                $GameElements[$a,$b].Image = $blackPawnBrownField
+            }
+            else
+            {
+                $GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Image = $whiteField
+                $GameElements[$a,$b].Image = $blackPawnWhiteField
+            }
+            $GameElements[$a,$b].Name = 'black'
+        }
+        elseif($GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name -eq 'white')
+        {
+            if(($global:checkedCoordinates[0] + $global:checkedCoordinates[1])%2 -eq 0)
+            {
+                $GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Image = $brownField
+                $GameElements[$a,$b].Image = $whitePawnBrownField
+            }
+            else
+            {
+                $GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Image = $whiteField
+                $GameElements[$a,$b].Image = $whitePawnWhiteField                
+            }
+            $GameElements[$a,$b].Name = 'white'
+        }
+        
+       
+    }
+
+    For ([int]$i=0; $i -lt 8; $i++)   ##czyszczenie planszy z zielonych pól
     {
         For ($j=0; $j -lt 8; $j++) 
         {               
@@ -93,39 +126,41 @@ if($global:availabilityCheck -eq 1)
             }
         }
     }
-}
+
+
+
 
     if($GameElements[$a,$b].Name -eq 'black')
     {
         if($GameElements[($a+1),($b+1)].Name -eq 'nic' -and (($a+1) -lt 8) -and (($b+1) -lt 8))
         {
-            $GameElements[($a+1),($b+1)].Image = $availableMoveBlackPawn
+            $GameElements[($a+1),($b+1)].Image = $availableMove
             $GameElements[($a+1),($b+1)].Name = 'available'
         } 
         if($GameElements[($a-1),($b+1)].Name -eq 'nic' -and (($a-1) -ge 0) -and (($b+1) -lt 8) )
         {
-            $GameElements[($a-1),($b+1)].Image = $availableMoveBlackPawn
+            $GameElements[($a-1),($b+1)].Image = $availableMove
             $GameElements[($a-1),($b+1)].Name = 'available'
         } 
         
-               
+        $global:checkedCoordinates = $a, $b      
     }
 
     if($GameElements[$a,$b].Name -eq 'white')
     {
         if($GameElements[($a-1),($b-1)].Name -eq 'nic' -and (($a-1) -ge 0) -and (($b-1) -ge 0))
         {
-            $GameElements[($a-1),($b-1)].Image = $availableMoveWhitePawn
+            $GameElements[($a-1),($b-1)].Image = $availableMove
             $GameElements[($a-1),($b-1)].Name = 'available'
         }  
         if($GameElements[($a+1),($b-1)].Name -eq 'nic' -and (($a+1) -lt 8) -and (($b-1) -ge 0) )
         {
-            $GameElements[($a+1),($b-1)].Image = $availableMoveWhitePawn
+            $GameElements[($a+1),($b-1)].Image = $availableMove
             $GameElements[($a+1),($b-1)].Name = 'available'
-        }       
-    }
+        }   
 
-    $global:availabilityCheck = 1
+        $global:checkedCoordinates = $a, $b     
+    }
 
 }        
 
@@ -352,6 +387,7 @@ $whitePawnWhiteField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcab
 $whitePawnBrownField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\whitePawnBrownField.png")
 $blackPawnWhiteField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\blackPawnWhiteField.png")
 $blackPawnBrownField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\blackPawnBrownField.png")
+$availableMove = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\availableMove.png")
 $availableMoveWhitePawn = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\availableMoveWhitePawn.png")
 $availableMoveBlackPawn = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\availableMoveBlackPawn.png")
 
@@ -474,7 +510,7 @@ if($firstMode.Checked)   ##tworzenie pól do kółka i krzyżyk
 
     $global:isWin=0      #0 - rozgrywka trwa, 1 - zwycięstwo, -1 - porażka
 
-    $global:availabilityCheck=0 #sprawdza czy gracz obecnie sprawdza mozliwosc ruchu jakims pionkiem
+    $global:checkedCoordinates = 100,100
 
         #Tworzenie pól ( niestety nie da się tego ładnie zrobić, trzeba switch casem)
 For ([int]$i=0; $i -lt 8; $i++) 
@@ -490,12 +526,12 @@ For ([int]$i=0; $i -lt 8; $i++)
             {
             
                 
-                if($j -lt 2)
+                if($j -lt 3)
                 {
                     $GameElements[$i,$j].Image = $blackPawnBrownField
                     $GameElements[$i,$j].Name='black'
                 }
-                elseif($j -gt 5)
+                elseif($j -gt 4)
                 {
                     $GameElements[$i,$j].Image = $whitePawnBrownField
                     $GameElements[$i,$j].Name='white'
@@ -507,23 +543,9 @@ For ([int]$i=0; $i -lt 8; $i++)
                 }
             }
             else
-            {
-            
-                if($j -lt 2)
-                {
-                    $GameElements[$i,$j].Image = $blackPawnWhiteField
-                    $GameElements[$i,$j].Name='black'
-                }
-                elseif($j -gt 5)
-                {
-                    $GameElements[$i,$j].Image = $whitePawnWhiteField
-                    $GameElements[$i,$j].Name='white'
-                }
-                else
-                {
-                    $GameElements[$i,$j].Image = $WhiteField
-                    $GameElements[$i,$j].Name='nic'
-                }
+            {            
+                $GameElements[$i,$j].Image = $WhiteField
+                $GameElements[$i,$j].Name='nic'
             }
             
             $GameElements[$i,$j].Visible=1
