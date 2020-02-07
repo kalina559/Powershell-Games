@@ -1,4 +1,5 @@
-﻿[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
+﻿cls
+[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") 
 
 Function confirmSettings ($Form) 
@@ -47,7 +48,7 @@ Function restartAfterWin ($Form)
     $infoLabel.Text = "gra w trakcie..."
 }
 
-Function elementClick ($a, $b)
+Function ticTacToeElementClick ($a, $b)
 {
     [string] $type
     if($global:buttonType -eq "X")
@@ -69,6 +70,65 @@ Function elementClick ($a, $b)
         typeChange
     }        
 }
+
+Function checkersElementClick ($a, $b)
+{ 
+if($global:availabilityCheck -eq 1)
+{
+    For ([int]$i=0; $i -lt 8; $i++) 
+    {
+        For ($j=0; $j -lt 8; $j++) 
+        {               
+            if($GameElements[$i,$j].Name -eq 'available')
+            {
+                if(($i+$j)%2 -eq 0)
+                {
+                    $GameElements[$i,$j].Image = $brownField
+                }        
+                else
+                {
+                    $GameElements[$i,$j].Image = $whiteField
+                }
+                $GameElements[$i,$j].Name = 'nic'
+            }
+        }
+    }
+}
+
+    if($GameElements[$a,$b].Name -eq 'black')
+    {
+        if($GameElements[($a+1),($b+1)].Name -eq 'nic' -and (($a+1) -lt 8) -and (($b+1) -lt 8))
+        {
+            $GameElements[($a+1),($b+1)].Image = $availableMoveBlackPawn
+            $GameElements[($a+1),($b+1)].Name = 'available'
+        } 
+        if($GameElements[($a-1),($b+1)].Name -eq 'nic' -and (($a-1) -ge 0) -and (($b+1) -lt 8) )
+        {
+            $GameElements[($a-1),($b+1)].Image = $availableMoveBlackPawn
+            $GameElements[($a-1),($b+1)].Name = 'available'
+        } 
+        
+               
+    }
+
+    if($GameElements[$a,$b].Name -eq 'white')
+    {
+        if($GameElements[($a-1),($b-1)].Name -eq 'nic' -and (($a-1) -ge 0) -and (($b-1) -ge 0))
+        {
+            $GameElements[($a-1),($b-1)].Image = $availableMoveWhitePawn
+            $GameElements[($a-1),($b-1)].Name = 'available'
+        }  
+        if($GameElements[($a+1),($b-1)].Name -eq 'nic' -and (($a+1) -lt 8) -and (($b-1) -ge 0) )
+        {
+            $GameElements[($a+1),($b-1)].Image = $availableMoveWhitePawn
+            $GameElements[($a+1),($b-1)].Name = 'available'
+        }       
+    }
+
+    $global:availabilityCheck = 1
+
+}        
+
 
 Function typeChange 
 {    
@@ -206,7 +266,7 @@ $SettingsWindow.Controls.Add($SetButton)
 $SettingsWindow.Controls.Add($DimensionUpDown)
 $SettingsWindow.Controls.Add($DimensionLabel)
 
-#Okno gry
+#Okno gry w kółko i krzyżyk
 $TicTacToeWindow = New-Object system.Windows.Forms.Form
 $TicTacToeWindow.Width = 1000
 $TicTacToeWindow.Height = 667
@@ -216,10 +276,21 @@ $TicTacToeWindow.WindowState = "Normal"
 $TicTacToeWindow.SizeGripStyle = "Hide"
 $TicTacToeWindow.StartPosition = "CenterScreen"
 $TicTacToeWindow.FormBorderStyle = 'Fixed3D'
+$TicTacToeBackground = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\background.jfif")
+$TicTacToeWindow.BackgroundImage = $TicTacToeBackground
 
-#Obiekty w oknie głównym
-$GameImage = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\background.jfif")
-$TicTacToeWindow.BackgroundImage = $GameImage
+#Okno gry w warcaby
+$CheckersWindow = New-Object system.Windows.Forms.Form
+$CheckersWindow.Width = 1000
+$CheckersWindow.Height = 667
+$CheckersWindow.MaximizeBox = $False
+$CheckersWindow.MinimizeBox = $False
+$CheckersWindow.WindowState = "Normal"
+$CheckersWindow.SizeGripStyle = "Hide"
+$CheckersWindow.StartPosition = "CenterScreen"
+$CheckersWindow.FormBorderStyle = 'Fixed3D'
+$CheckersBackground = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\background.jpg")
+$CheckersWindow.BackgroundImage = $CheckersBackground
 
 $StartButton= New-Object System.Windows.Forms.Button
 $StartButton.Location=New-Object System.Drawing.Size(350,20) 
@@ -274,114 +345,265 @@ $winWindow.Controls.Add($restartButton)
 #Image - obraz który jest początkowo na GameElementach, po prostu pusty kwadrat
 $Image = [system.drawing.image]::FromFile($PSScriptRoot + "\ticTacToe\field.png")
 
+#Pola w warcabach
+$brownField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\brownField.png")
+$whiteField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\whiteField.png")
+$whitePawnWhiteField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\whitePawnWhiteField.png")
+$whitePawnBrownField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\whitePawnBrownField.png")
+$blackPawnWhiteField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\blackPawnWhiteField.png")
+$blackPawnBrownField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\blackPawnBrownField.png")
+$availableMoveWhitePawn = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\availableMoveWhitePawn.png")
+$availableMoveBlackPawn = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\availableMoveBlackPawn.png")
 
 
 #Gra
 $ModeWindow.ShowDialog()
-if($secondMode.Checked)
+if($secondMode.Checked)   ##jeśli wybrane kółko i krzyżyk to wyświetlają się ustawienia (rozmiar planszy)
     {
     $SettingsWindow.ShowDialog()
     }
 
 
-
-
-#Obiekty wstawione dynamicznie, po ustawieniu opcji
-$GameElements = New-Object 'object[,]' ($DimensionUpDown.Value),($DimensionUpDown.Value)
-#Tablica przechowujaca dane o polach, 0 - puste, 1 - krzyzyk, 2 - kolko
-[int[,]]$GameData = [int[,]]::new(($WidthUpDown.Value),($HeightUpDown.Value))
-
-$global:isWin=0      #0 - rozgrywka trwa, 1 - zwycięstwo, -1 - porażka
-
-#Tworzenie pól ( niestety nie da się tego ładnie zrobić, trzeba switch casem)
-For ([int]$i=0; $i -lt $DimensionUpDown.Value; $i++) 
+if($secondMode.Checked)   ##tworzenie pól do kółka i krzyżyk
 {
-    For ($j=0; $j -lt $DimensionUpDown.Value; $j++) 
-    {                  
-        $GameElements[$i,$j] = new-object Windows.Forms.PictureBox
-        $GameElements[$i,$j].Width = $Image.Size.Width
-        $GameElements[$i,$j].Height = $Image.Size.Height
-        $GameElements[$i,$j].Image = $Image
-        $GameElements[$i,$j].Visible=0
-        $GameElements[$i,$j].Location = New-Object System.Drawing.Size((300+ $i * $Image.Width),(150 + $j*$Image.Height))
-        $GameElements[$i,$j].Name='nic'       
+    #Obiekty wstawione dynamicznie, po ustawieniu opcji
+    $GameElements = New-Object 'object[,]' ($DimensionUpDown.Value),($DimensionUpDown.Value)
+    #Tablica przechowujaca dane o polach, 0 - puste, 1 - krzyzyk, 2 - kolko
+    [int[,]]$GameData = [int[,]]::new(($WidthUpDown.Value),($HeightUpDown.Value))
 
-        $temp =10*$i+$j
-        switch($temp)
-        {
+    $global:isWin=0      #0 - rozgrywka trwa, 1 - zwycięstwo, -1 - porażka
+
+        #Tworzenie pól ( niestety nie da się tego ładnie zrobić, trzeba switch casem)
+For ([int]$i=0; $i -lt $DimensionUpDown.Value; $i++) 
+    {
+        For ($j=0; $j -lt $DimensionUpDown.Value; $j++) 
+        {                  
+            $GameElements[$i,$j] = new-object Windows.Forms.PictureBox
+            $GameElements[$i,$j].Width = $Image.Size.Width
+            $GameElements[$i,$j].Height = $Image.Size.Height
+            $GameElements[$i,$j].Image = $Image
+            $GameElements[$i,$j].Visible=0
+            $GameElements[$i,$j].Location = New-Object System.Drawing.Size((300+ $i * $Image.Width),(150 + $j*$Image.Height))
+            $GameElements[$i,$j].Name='nic'       
+
+            $temp =10*$i+$j
+            switch($temp)
+            {
         
-        00 {$GameElements[$i,$j].Add_Click({elementClick 0 0})}
-        01 {$GameElements[$i,$j].Add_Click({elementClick 0 1})}
-        02 {$GameElements[$i,$j].Add_Click({elementClick 0 2})}
-        03 {$GameElements[$i,$j].Add_Click({elementClick 0 3})}
-        04 {$GameElements[$i,$j].Add_Click({elementClick 0 4})}
-        05 {$GameElements[$i,$j].Add_Click({elementClick 0 5})}
-        06 {$GameElements[$i,$j].Add_Click({elementClick 0 6})}
-        07 {$GameElements[$i,$j].Add_Click({elementClick 0 7})}
-        10 {$GameElements[$i,$j].Add_Click({elementClick 1 0})}
-        11 {$GameElements[$i,$j].Add_Click({elementClick 1 1})}
-        12 {$GameElements[$i,$j].Add_Click({elementClick 1 2})}
-        13 {$GameElements[$i,$j].Add_Click({elementClick 1 3})}
-        14 {$GameElements[$i,$j].Add_Click({elementClick 1 4})}
-        15 {$GameElements[$i,$j].Add_Click({elementClick 1 5})}
-        16 {$GameElements[$i,$j].Add_Click({elementClick 1 6})}
-        17 {$GameElements[$i,$j].Add_Click({elementClick 1 7})}
-        20 {$GameElements[$i,$j].Add_Click({elementClick 2 0})}
-        21 {$GameElements[$i,$j].Add_Click({elementClick 2 1})}
-        22 {$GameElements[$i,$j].Add_Click({elementClick 2 2})}
-        23 {$GameElements[$i,$j].Add_Click({elementClick 2 3})}
-        24 {$GameElements[$i,$j].Add_Click({elementClick 2 4})}
-        25 {$GameElements[$i,$j].Add_Click({elementClick 2 5})}
-        26 {$GameElements[$i,$j].Add_Click({elementClick 2 6})}
-        27 {$GameElements[$i,$j].Add_Click({elementClick 2 7})}
-        30 {$GameElements[$i,$j].Add_Click({elementClick 3 0})}
-        31 {$GameElements[$i,$j].Add_Click({elementClick 3 1})}
-        32 {$GameElements[$i,$j].Add_Click({elementClick 3 2})}
-        33 {$GameElements[$i,$j].Add_Click({elementClick 3 3})}
-        34 {$GameElements[$i,$j].Add_Click({elementClick 3 4})}
-        35 {$GameElements[$i,$j].Add_Click({elementClick 3 5})}
-        36 {$GameElements[$i,$j].Add_Click({elementClick 3 6})}
-        37 {$GameElements[$i,$j].Add_Click({elementClick 3 7})}
-        40 {$GameElements[$i,$j].Add_Click({elementClick 4 0})}
-        41 {$GameElements[$i,$j].Add_Click({elementClick 4 1})}
-        42 {$GameElements[$i,$j].Add_Click({elementClick 4 2})}
-        43 {$GameElements[$i,$j].Add_Click({elementClick 4 3})}
-        44 {$GameElements[$i,$j].Add_Click({elementClick 4 4})}
-        45 {$GameElements[$i,$j].Add_Click({elementClick 4 5})}
-        46 {$GameElements[$i,$j].Add_Click({elementClick 4 6})}
-        47 {$GameElements[$i,$j].Add_Click({elementClick 4 7})}
-        50 {$GameElements[$i,$j].Add_Click({elementClick 5 0})}
-        51 {$GameElements[$i,$j].Add_Click({elementClick 5 1})}
-        52 {$GameElements[$i,$j].Add_Click({elementClick 5 2})}
-        53 {$GameElements[$i,$j].Add_Click({elementClick 5 3})}
-        54 {$GameElements[$i,$j].Add_Click({elementClick 5 4})}
-        55 {$GameElements[$i,$j].Add_Click({elementClick 5 5})}
-        56 {$GameElements[$i,$j].Add_Click({elementClick 5 6})}
-        57 {$GameElements[$i,$j].Add_Click({elementClick 5 7})}
-        60 {$GameElements[$i,$j].Add_Click({elementClick 6 0})}
-        61 {$GameElements[$i,$j].Add_Click({elementClick 6 1})}
-        62 {$GameElements[$i,$j].Add_Click({elementClick 6 2})}
-        63 {$GameElements[$i,$j].Add_Click({elementClick 6 3})}
-        64 {$GameElements[$i,$j].Add_Click({elementClick 6 4})}
-        65 {$GameElements[$i,$j].Add_Click({elementClick 6 5})}
-        66 {$GameElements[$i,$j].Add_Click({elementClick 6 6})}
-        67 {$GameElements[$i,$j].Add_Click({elementClick 6 7})}
-        70 {$GameElements[$i,$j].Add_Click({elementClick 7 0})}
-        71 {$GameElements[$i,$j].Add_Click({elementClick 7 1})}
-        72 {$GameElements[$i,$j].Add_Click({elementClick 7 2})}
-        73 {$GameElements[$i,$j].Add_Click({elementClick 7 3})}
-        74 {$GameElements[$i,$j].Add_Click({elementClick 7 4})}
-        75 {$GameElements[$i,$j].Add_Click({elementClick 7 5})}
-        76 {$GameElements[$i,$j].Add_Click({elementClick 7 6})}
-        77 {$GameElements[$i,$j].Add_Click({elementClick 7 7})}
-        }
-        $TicTacToeWindow.controls.add(($GameElements[$i,$j]))
-    }  
+                00 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 0 0})}
+                01 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 0 1})}
+                02 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 0 2})}
+                03 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 0 3})}
+                04 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 0 4})}
+                05 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 0 5})}
+                06 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 0 6})}
+                07 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 0 7})}
+                10 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 1 0})}
+                11 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 1 1})}
+                12 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 1 2})}
+                13 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 1 3})}
+                14 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 1 4})}
+                15 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 1 5})}
+                16 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 1 6})}
+                17 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 1 7})}
+                20 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 2 0})}
+                21 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 2 1})}
+                22 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 2 2})}
+                23 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 2 3})}
+                24 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 2 4})}
+                25 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 2 5})}
+                26 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 2 6})}
+                27 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 2 7})}
+                30 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 3 0})}
+                31 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 3 1})}
+                32 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 3 2})}
+                33 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 3 3})}
+                34 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 3 4})}
+                35 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 3 5})}
+                36 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 3 6})}
+                37 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 3 7})}
+                40 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 4 0})}
+                41 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 4 1})}
+                42 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 4 2})}
+                43 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 4 3})}
+                44 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 4 4})}
+                45 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 4 5})}
+                46 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 4 6})}
+                47 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 4 7})}
+                50 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 5 0})}
+                51 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 5 1})}
+                52 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 5 2})}
+                53 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 5 3})}
+                54 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 5 4})}
+                55 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 5 5})}
+                56 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 5 6})}
+                57 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 5 7})}
+                60 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 6 0})}
+                61 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 6 1})}
+                62 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 6 2})}
+                63 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 6 3})}
+                64 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 6 4})}
+                65 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 6 5})}
+                66 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 6 6})}
+                67 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 6 7})}
+                70 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 7 0})}
+                71 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 7 1})}
+                72 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 7 2})}
+                73 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 7 3})}
+                74 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 7 4})}
+                75 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 7 5})}
+                76 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 7 6})}
+                77 {$GameElements[$i,$j].Add_Click({ticTacToeElementClick 7 7})}
+            }
+
+            $TicTacToeWindow.controls.add(($GameElements[$i,$j]))
+        }  
+    }
+
+    $TicTacToeWindow.ShowDialog()
 }
 
+###################################### WARCABY
 
-if($secondMode.Checked)
+if($firstMode.Checked)   ##tworzenie pól do kółka i krzyżyk
+{
+    #Obiekty wstawione dynamicznie, po ustawieniu opcji
+    $GameElements = New-Object 'object[,]' (8),(8)
+    #Tablica przechowujaca dane o polach, 0 - puste, 1 - krzyzyk, 2 - kolko
+    [int[,]]$GameData = [int[,]]::new((8),(8))
+
+    $global:isWin=0      #0 - rozgrywka trwa, 1 - zwycięstwo, -1 - porażka
+
+    $global:availabilityCheck=0 #sprawdza czy gracz obecnie sprawdza mozliwosc ruchu jakims pionkiem
+
+        #Tworzenie pól ( niestety nie da się tego ładnie zrobić, trzeba switch casem)
+For ([int]$i=0; $i -lt 8; $i++) 
     {
-    $TicTacToeWindow.ShowDialog()
+        For ($j=0; $j -lt 8; $j++) 
+        {                  
+            $GameElements[$i,$j] = new-object Windows.Forms.PictureBox
+            $GameElements[$i,$j].Width = $Image.Size.Width
+            $GameElements[$i,$j].Height = $Image.Size.Height
+            
+            
+            if(($i+$j)%2 -eq 0)
+            {
+            
+                
+                if($j -lt 2)
+                {
+                    $GameElements[$i,$j].Image = $blackPawnBrownField
+                    $GameElements[$i,$j].Name='black'
+                }
+                elseif($j -gt 5)
+                {
+                    $GameElements[$i,$j].Image = $whitePawnBrownField
+                    $GameElements[$i,$j].Name='white'
+                }
+                else
+                {
+                    $GameElements[$i,$j].Image = $brownField
+                    $GameElements[$i,$j].Name='nic'
+                }
+            }
+            else
+            {
+            
+                if($j -lt 2)
+                {
+                    $GameElements[$i,$j].Image = $blackPawnWhiteField
+                    $GameElements[$i,$j].Name='black'
+                }
+                elseif($j -gt 5)
+                {
+                    $GameElements[$i,$j].Image = $whitePawnWhiteField
+                    $GameElements[$i,$j].Name='white'
+                }
+                else
+                {
+                    $GameElements[$i,$j].Image = $WhiteField
+                    $GameElements[$i,$j].Name='nic'
+                }
+            }
+            
+            $GameElements[$i,$j].Visible=1
+            $GameElements[$i,$j].Location = New-Object System.Drawing.Size((300+ $i * $Image.Width),(100 + $j*$Image.Height))
+                   
+
+            $temp =10*$i+$j
+            switch($temp)
+            {
+        
+                00 {$GameElements[$i,$j].Add_Click({checkersElementClick 0 0})}
+                01 {$GameElements[$i,$j].Add_Click({checkersElementClick 0 1})}
+                02 {$GameElements[$i,$j].Add_Click({checkersElementClick 0 2})}
+                03 {$GameElements[$i,$j].Add_Click({checkersElementClick 0 3})}
+                04 {$GameElements[$i,$j].Add_Click({checkersElementClick 0 4})}
+                05 {$GameElements[$i,$j].Add_Click({checkersElementClick 0 5})}
+                06 {$GameElements[$i,$j].Add_Click({checkersElementClick 0 6})}
+                07 {$GameElements[$i,$j].Add_Click({checkersElementClick 0 7})}
+                10 {$GameElements[$i,$j].Add_Click({checkersElementClick 1 0})}
+                11 {$GameElements[$i,$j].Add_Click({checkersElementClick 1 1})}
+                12 {$GameElements[$i,$j].Add_Click({checkersElementClick 1 2})}
+                13 {$GameElements[$i,$j].Add_Click({checkersElementClick 1 3})}
+                14 {$GameElements[$i,$j].Add_Click({checkersElementClick 1 4})}
+                15 {$GameElements[$i,$j].Add_Click({checkersElementClick 1 5})}
+                16 {$GameElements[$i,$j].Add_Click({checkersElementClick 1 6})}
+                17 {$GameElements[$i,$j].Add_Click({checkersElementClick 1 7})}
+                20 {$GameElements[$i,$j].Add_Click({checkersElementClick 2 0})}
+                21 {$GameElements[$i,$j].Add_Click({checkersElementClick 2 1})}
+                22 {$GameElements[$i,$j].Add_Click({checkersElementClick 2 2})}
+                23 {$GameElements[$i,$j].Add_Click({checkersElementClick 2 3})}
+                24 {$GameElements[$i,$j].Add_Click({checkersElementClick 2 4})}
+                25 {$GameElements[$i,$j].Add_Click({checkersElementClick 2 5})}
+                26 {$GameElements[$i,$j].Add_Click({checkersElementClick 2 6})}
+                27 {$GameElements[$i,$j].Add_Click({checkersElementClick 2 7})}
+                30 {$GameElements[$i,$j].Add_Click({checkersElementClick 3 0})}
+                31 {$GameElements[$i,$j].Add_Click({checkersElementClick 3 1})}
+                32 {$GameElements[$i,$j].Add_Click({checkersElementClick 3 2})}
+                33 {$GameElements[$i,$j].Add_Click({checkersElementClick 3 3})}
+                34 {$GameElements[$i,$j].Add_Click({checkersElementClick 3 4})}
+                35 {$GameElements[$i,$j].Add_Click({checkersElementClick 3 5})}
+                36 {$GameElements[$i,$j].Add_Click({checkersElementClick 3 6})}
+                37 {$GameElements[$i,$j].Add_Click({checkersElementClick 3 7})}
+                40 {$GameElements[$i,$j].Add_Click({checkersElementClick 4 0})}
+                41 {$GameElements[$i,$j].Add_Click({checkersElementClick 4 1})}
+                42 {$GameElements[$i,$j].Add_Click({checkersElementClick 4 2})}
+                43 {$GameElements[$i,$j].Add_Click({checkersElementClick 4 3})}
+                44 {$GameElements[$i,$j].Add_Click({checkersElementClick 4 4})}
+                45 {$GameElements[$i,$j].Add_Click({checkersElementClick 4 5})}
+                46 {$GameElements[$i,$j].Add_Click({checkersElementClick 4 6})}
+                47 {$GameElements[$i,$j].Add_Click({checkersElementClick 4 7})}
+                50 {$GameElements[$i,$j].Add_Click({checkersElementClick 5 0})}
+                51 {$GameElements[$i,$j].Add_Click({checkersElementClick 5 1})}
+                52 {$GameElements[$i,$j].Add_Click({checkersElementClick 5 2})}
+                53 {$GameElements[$i,$j].Add_Click({checkersElementClick 5 3})}
+                54 {$GameElements[$i,$j].Add_Click({checkersElementClick 5 4})}
+                55 {$GameElements[$i,$j].Add_Click({checkersElementClick 5 5})}
+                56 {$GameElements[$i,$j].Add_Click({checkersElementClick 5 6})}
+                57 {$GameElements[$i,$j].Add_Click({checkersElementClick 5 7})}
+                60 {$GameElements[$i,$j].Add_Click({checkersElementClick 6 0})}
+                61 {$GameElements[$i,$j].Add_Click({checkersElementClick 6 1})}
+                62 {$GameElements[$i,$j].Add_Click({checkersElementClick 6 2})}
+                63 {$GameElements[$i,$j].Add_Click({checkersElementClick 6 3})}
+                64 {$GameElements[$i,$j].Add_Click({checkersElementClick 6 4})}
+                65 {$GameElements[$i,$j].Add_Click({checkersElementClick 6 5})}
+                66 {$GameElements[$i,$j].Add_Click({checkersElementClick 6 6})}
+                67 {$GameElements[$i,$j].Add_Click({checkersElementClick 6 7})}
+                70 {$GameElements[$i,$j].Add_Click({checkersElementClick 7 0})}
+                71 {$GameElements[$i,$j].Add_Click({checkersElementClick 7 1})}
+                72 {$GameElements[$i,$j].Add_Click({checkersElementClick 7 2})}
+                73 {$GameElements[$i,$j].Add_Click({checkersElementClick 7 3})}
+                74 {$GameElements[$i,$j].Add_Click({checkersElementClick 7 4})}
+                75 {$GameElements[$i,$j].Add_Click({checkersElementClick 7 5})}
+                76 {$GameElements[$i,$j].Add_Click({checkersElementClick 7 6})}
+                77 {$GameElements[$i,$j].Add_Click({checkersElementClick 7 7})}
+            }
+
+            $CheckersWindow.controls.add(($GameElements[$i,$j]))
+        }  
     }
+
+    $CheckersWindow.ShowDialog()
+}
 
