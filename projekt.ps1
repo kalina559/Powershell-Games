@@ -73,10 +73,13 @@ Function ticTacToeElementClick ($a, $b)
 
 Function checkersElementClick ($a, $b)
 { 
-
+Write-Host $GameElements[$a,$b].Name
+#Write-Host [Int](($a-$global:checkedCoordinates[0])/2)
+Write-Host $a, $b
+#Write-Host $global:checkedCoordinates[0], $global:checkedCoordinates[1]
     if($GameElements[$a,$b].Name -eq 'available')
     {
-        if($GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name -eq 'black')
+        if($GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name -eq 'black' -and $global:checkersType -eq "black")
         {
             if(($global:checkedCoordinates[0] + $global:checkedCoordinates[1])%2 -eq 0)
             {
@@ -90,7 +93,7 @@ Function checkersElementClick ($a, $b)
             }
             $GameElements[$a,$b].Name = 'black'
         }
-        elseif($GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name -eq 'white')
+        elseif($GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name -eq 'white' -and $global:checkersType -eq "white")
         {
             if(($global:checkedCoordinates[0] + $global:checkedCoordinates[1])%2 -eq 0)
             {
@@ -104,11 +107,48 @@ Function checkersElementClick ($a, $b)
             }
             $GameElements[$a,$b].Name = 'white'
         }
+        #Czyszczenie pola skad ruszyl sie pionek - ustawianie go na 'nic'
+        $GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name = 'nic'
         
-       
+        #Realizacja bicia
+        if($global:checkedCoordinates[0] - $a -eq 2 -or $global:checkedCoordinates[0] - $a -eq -2)
+        {
+            $aBeat = ($a + $global:checkedCoordinates[0]) / 2
+            $bBeat = ($b + $global:checkedCoordinates[1]) / 2
+            Write-Host $aBeat, $bBeat
+            $GameElements[$aBeat, $bBeat].Image = $brownField
+            $GameElements[$aBeat, $bBeat].Name = 'nic'
+
+            #Zmniejszamy liczbe pionkow odpowiedniego gracza
+            if($global:checkersType -eq "white")
+            {
+                $global:blackAmount = $global:blackAmount - 1
+            }
+            else
+            {
+                $global:whiteAmount = $global:whiteAmount - 1
+            }
+
+            #Informacja o zwyciezcy
+            if($global:whiteAmount -eq 0)
+            {
+                $winWindow.Text = "Wygraly czarne"
+                $winWindow.Show()
+            }
+            elseif($global:blackAmount -eq 0)
+            {
+                $winWindow.Text = "Wygraly biale!"
+                $winWindow.Show()
+            }
+        }       
+    
+        #Ustawienie ruchu nastepnego gracza
+        typeCheckersChange 
+        
     }
 
-    For ([int]$i=0; $i -lt 8; $i++)   ##czyszczenie planszy z zielonych pól
+    ##czyszczenie planszy z zielonych pól
+    For ([int]$i=0; $i -lt 8; $i++)   
     {
         For ($j=0; $j -lt 8; $j++) 
         {               
@@ -127,10 +167,19 @@ Function checkersElementClick ($a, $b)
         }
     }
 
+    ##tworzenie krolowych
+    if($b -eq 0 -and $GameElements[$a,$b].Name -eq 'white')
+    {
+        $GameElements[$a,$b].Name = 'whiteQueen'
+        $GameElements[$a,$b].Image = $whitePawnQueenBrownField
+    }
+    if($b -eq 7 -and $GameElements[$a,$b].Name -eq 'black')
+    {
+        $GameElements[$a,$b].Name = 'blackQueen'
+        $GameElements[$a,$b].Image = $blackPawnQueenBrownField
+    }
 
-
-
-    if($GameElements[$a,$b].Name -eq 'black')
+    if($GameElements[$a,$b].Name -eq 'black' -and $global:checkersType -eq "black")
     {
         if($GameElements[($a+1),($b+1)].Name -eq 'nic' -and (($a+1) -lt 8) -and (($b+1) -lt 8))
         {
@@ -142,11 +191,26 @@ Function checkersElementClick ($a, $b)
             $GameElements[($a-1),($b+1)].Image = $availableMove
             $GameElements[($a-1),($b+1)].Name = 'available'
         } 
-        
+        #bicie przez czarne
+        if($GameElements[($a-1),($b+1)].Name -eq 'white' -and (($a-2) -ge 0) -and (($b+2) -lt 8) )
+        {
+            $GameElements[($a-2),($b+2)].Image = $availableMove
+            #$GameElements[($a-1),($b+1)].Name = 'availableBeat'
+            $GameElements[($a-2),($b+2)].Name = 'available'
+        } 
+
+        if($GameElements[($a+1),($b+1)].Name -eq 'white' -and (($a+2) -ge 0) -and (($b+2) -lt 8) )
+        {
+            $GameElements[($a+2),($b+2)].Image = $availableMove
+            #$GameElements[($a+1),($b+1)].Name = 'availableBeat'
+            $GameElements[($a+2),($b+2)].Name = 'available'
+        } 
+
+
         $global:checkedCoordinates = $a, $b      
     }
 
-    if($GameElements[$a,$b].Name -eq 'white')
+    if($GameElements[$a,$b].Name -eq 'white' -and $global:checkersType -eq "white")
     {
         if($GameElements[($a-1),($b-1)].Name -eq 'nic' -and (($a-1) -ge 0) -and (($b-1) -ge 0))
         {
@@ -159,11 +223,45 @@ Function checkersElementClick ($a, $b)
             $GameElements[($a+1),($b-1)].Name = 'available'
         }   
 
+        #bicie przez białe
+        if($GameElements[($a-1),($b-1)].Name -eq 'black' -and (($a-2) -ge 0) -and (($b-2) -lt 8) )
+        {
+            $GameElements[($a-2),($b-2)].Image = $availableMove
+            #$GameElements[($a-1),($b-1)].Name = 'availableBeat'
+            $GameElements[($a-2),($b-2)].Name = 'available'
+        } 
+
+        if($GameElements[($a+1),($b-1)].Name -eq 'black' -and (($a+2) -ge 0) -and (($b-2) -lt 8) )
+        {
+            $GameElements[($a+2),($b-2)].Image = $availableMove
+            #$GameElements[($a+1),($b-1)].Name = 'availableBeat'
+            $GameElements[($a+2),($b-2)].Name = 'available'
+        } 
+
         $global:checkedCoordinates = $a, $b     
     }
 
+    
 }        
 
+Function checkersElementMove ($a, $b)
+{
+    
+}
+
+Function typeCheckersChange 
+{    
+    if($global:checkersType -eq "white")
+    {
+        $global:checkersType = "black"
+    }
+    else
+    {
+        $global:checkersType = "white"
+    }  
+
+    $typeCheckers.Image = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\" + $global:checkersType + "PawnBrownField.png")              
+}
 
 Function typeChange 
 {    
@@ -347,6 +445,20 @@ $typeButton.Location = New-Object System.Drawing.Size(900,300)
 #$typeButton.Add_Click({typeClick})
 $TicTacToeWindow.controls.add($typeButton)
 
+$typeCheckers = new-object Windows.Forms.PictureBox
+$typeImage = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\whitePawnBrownField.png")
+$typeCheckers.Width = $typeImage.Size.Width
+$typeCheckers.Height = $typeImage.Size.Height
+$typeCheckers.Image = $typeImage
+$typeCheckers.Location = New-Object System.Drawing.Size(900,300) 
+#$typeButton.Add_Click({typeClick})
+$CheckersWindow.controls.add($typeCheckers)
+
+
+
+
+
+
 #InfoLabel - informacja o wygranej i ruchach
 $infoLabel = New-Object System.Windows.Forms.Label
 $infoLabel.Text = "gra w trakcie..."
@@ -390,7 +502,8 @@ $blackPawnBrownField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcab
 $availableMove = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\availableMove.png")
 $availableMoveWhitePawn = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\availableMoveWhitePawn.png")
 $availableMoveBlackPawn = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\availableMoveBlackPawn.png")
-
+$whitePawnQueenBrownField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\whitePawnQueenBrownField.png")
+$blackPawnQueenBrownField = [system.drawing.image]::FromFile($PSScriptRoot + "\warcaby\blackPawnQueenBrownField.png")
 
 #Gra
 $ModeWindow.ShowDialog()
@@ -511,6 +624,13 @@ if($firstMode.Checked)   ##tworzenie pól do kółka i krzyżyk
     $global:isWin=0      #0 - rozgrywka trwa, 1 - zwycięstwo, -1 - porażka
 
     $global:checkedCoordinates = 100,100
+
+#zmienna do przełączania koloru pionka, którym gra użytkownik (początkowo to bialy)
+$global:checkersType = "white"
+
+#liczbyPionkow
+$global:whiteAmount = 8
+$global:blackAmount = 8
 
         #Tworzenie pól ( niestety nie da się tego ładnie zrobić, trzeba switch casem)
 For ([int]$i=0; $i -lt 8; $i++) 
