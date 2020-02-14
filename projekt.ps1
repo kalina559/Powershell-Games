@@ -76,6 +76,7 @@ Function checkersElementClick ($a, $b)
 Write-Host $GameElements[$a,$b].Name
 #Write-Host [Int](($a-$global:checkedCoordinates[0])/2)
 Write-Host $a, $b
+#Write-Host "bialych: ", $global:whiteAmount, "  czarnych: ", $global:blackAmount
 #Write-Host $global:checkedCoordinates[0], $global:checkedCoordinates[1]
     if($GameElements[$a,$b].Name -eq 'available')
     {
@@ -179,8 +180,10 @@ Write-Host $a, $b
         $GameElements[$a,$b].Image = $blackPawnQueenBrownField
     }
 
+    ##sprawdzanie dostapnych ruchow i bic dla pionkow
     if($GameElements[$a,$b].Name -eq 'black' -and $global:checkersType -eq "black")
     {
+        #ruch wprzod
         if($GameElements[($a+1),($b+1)].Name -eq 'nic' -and (($a+1) -lt 8) -and (($b+1) -lt 8))
         {
             $GameElements[($a+1),($b+1)].Image = $availableMove
@@ -194,16 +197,39 @@ Write-Host $a, $b
         #bicie przez czarne
         if($GameElements[($a-1),($b+1)].Name -eq 'white' -and (($a-2) -ge 0) -and (($b+2) -lt 8) )
         {
-            $GameElements[($a-2),($b+2)].Image = $availableMove
-            #$GameElements[($a-1),($b+1)].Name = 'availableBeat'
-            $GameElements[($a-2),($b+2)].Name = 'available'
+            if($GameElements[($a-2),($b+2)].Name -eq 'nic')
+            {
+                $GameElements[($a-2),($b+2)].Image = $availableMove
+                $GameElements[($a-2),($b+2)].Name = 'available'
+            }
         } 
 
         if($GameElements[($a+1),($b+1)].Name -eq 'white' -and (($a+2) -ge 0) -and (($b+2) -lt 8) )
         {
-            $GameElements[($a+2),($b+2)].Image = $availableMove
-            #$GameElements[($a+1),($b+1)].Name = 'availableBeat'
-            $GameElements[($a+2),($b+2)].Name = 'available'
+            if($GameElements[($a+2),($b+2)].Name -eq 'nic')
+            {
+                $GameElements[($a+2),($b+2)].Image = $availableMove
+                $GameElements[($a+2),($b+2)].Name = 'available'
+            }
+        } 
+
+        #bicie przez czarne w tyl
+        if($GameElements[($a-1),($b-1)].Name -eq 'white' -and (($a-2) -ge 0) -and (($b-2) -lt 8) )
+        {
+            if($GameElements[($a-2),($b-2)].Name -eq 'nic')
+            {
+                $GameElements[($a-2),($b-2)].Image = $availableMove
+                $GameElements[($a-2),($b-2)].Name = 'available'
+            }
+        } 
+
+        if($GameElements[($a+1),($b-1)].Name -eq 'white' -and (($a+2) -ge 0) -and (($b-2) -lt 8) )
+        {
+            if($GameElements[($a+2),($b-2)].Name -eq 'nic')
+            {
+                $GameElements[($a+2),($b-2)].Image = $availableMove
+                $GameElements[($a+2),($b-2)].Name = 'available'
+            }
         } 
 
 
@@ -212,6 +238,7 @@ Write-Host $a, $b
 
     if($GameElements[$a,$b].Name -eq 'white' -and $global:checkersType -eq "white")
     {
+        #ruch wprzod bialymi
         if($GameElements[($a-1),($b-1)].Name -eq 'nic' -and (($a-1) -ge 0) -and (($b-1) -ge 0))
         {
             $GameElements[($a-1),($b-1)].Image = $availableMove
@@ -226,17 +253,51 @@ Write-Host $a, $b
         #bicie przez białe
         if($GameElements[($a-1),($b-1)].Name -eq 'black' -and (($a-2) -ge 0) -and (($b-2) -lt 8) )
         {
-            $GameElements[($a-2),($b-2)].Image = $availableMove
-            #$GameElements[($a-1),($b-1)].Name = 'availableBeat'
-            $GameElements[($a-2),($b-2)].Name = 'available'
+            if($GameElements[($a-2),($b-2)].Name -eq 'nic')
+            {
+                $GameElements[($a-2),($b-2)].Image = $availableMove
+                $GameElements[($a-2),($b-2)].Name = 'available'
+            }
         } 
 
         if($GameElements[($a+1),($b-1)].Name -eq 'black' -and (($a+2) -ge 0) -and (($b-2) -lt 8) )
         {
-            $GameElements[($a+2),($b-2)].Image = $availableMove
-            #$GameElements[($a+1),($b-1)].Name = 'availableBeat'
-            $GameElements[($a+2),($b-2)].Name = 'available'
+            if($GameElements[($a+2),($b-2)].Name -eq 'nic')
+            {
+                $GameElements[($a+2),($b-2)].Image = $availableMove
+                $GameElements[($a+2),($b-2)].Name = 'available'
+            }
         } 
+
+        #bicie przez białe w tyl
+        if($GameElements[($a-1),($b+1)].Name -eq 'black' -and (($a-2) -ge 0) -and (($b+2) -lt 8) )
+        {
+            if($GameElements[($a-2),($b+2)].Name -eq 'nic')
+            {
+                $GameElements[($a-2),($b+2)].Image = $availableMove
+                $GameElements[($a-2),($b+2)].Name = 'available'
+            }
+        } 
+
+        if($GameElements[($a+1),($b+1)].Name -eq 'black' -and (($a+2) -ge 0) -and (($b+2) -lt 8) )
+        {
+            if($GameElements[($a+2),($b+2)].Name -eq 'nic')
+            {
+                $GameElements[($a+2),($b+2)].Image = $availableMove
+                $GameElements[($a+2),($b+2)].Name = 'available'
+            }
+        } 
+
+        ##sprawdzanie dostapnych ruchow i bic dla krolowych
+        For ([int]$i=0; $i -lt 8; $i++)   
+        {
+            For ($j=0; $j -lt 8; $j++) 
+            {
+
+            }
+        }
+
+
 
         $global:checkedCoordinates = $a, $b     
     }
@@ -629,8 +690,8 @@ if($firstMode.Checked)   ##tworzenie pól do kółka i krzyżyk
 $global:checkersType = "white"
 
 #liczbyPionkow
-$global:whiteAmount = 8
-$global:blackAmount = 8
+$global:whiteAmount = 12
+$global:blackAmount = 12
 
         #Tworzenie pól ( niestety nie da się tego ładnie zrobić, trzeba switch casem)
 For ([int]$i=0; $i -lt 8; $i++) 
