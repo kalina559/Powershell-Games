@@ -108,7 +108,22 @@ Write-Host $a, $b
             }
             $GameElements[$a,$b].Name = 'white'
         }
-        #Czyszczenie pola skad ruszyl sie pionek - ustawianie go na 'nic'
+        elseif($GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name -eq 'whiteQueen' -and $global:checkersType -eq "white")
+        {
+            $GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Image = $brownField
+            $GameElements[$a,$b].Image = $whitePawnQueenBrownField
+           
+            $GameElements[$a,$b].Name = 'whiteQueen'
+        }
+        elseif($GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name -eq 'blackQueen' -and $global:checkersType -eq "black")
+        {
+            $GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Image = $brownField
+            $GameElements[$a,$b].Image = $blackPawnQueenBrownField
+           
+            $GameElements[$a,$b].Name = 'blackQueen'
+        }
+        
+    #Czyszczenie pola skad ruszyl sie pionek - ustawianie go na 'nic'
         $GameElements[($global:checkedCoordinates[0]),($global:checkedCoordinates[1])].Name = 'nic'
         
         #Realizacja bicia
@@ -148,6 +163,7 @@ Write-Host $a, $b
         
     }
 
+        
     ##czyszczenie planszy z zielonych pól
     For ([int]$i=0; $i -lt 8; $i++)   
     {
@@ -181,7 +197,7 @@ Write-Host $a, $b
     }
 
     ##sprawdzanie dostapnych ruchow i bic dla pionkow
-    if($GameElements[$a,$b].Name -eq 'black' -and $global:checkersType -eq "black")
+    if($GameElements[$a,$b].Name -eq 'black' -or $GameElements[$a,$b].Name -eq 'blackQueen' -and $global:checkersType -eq "black")
     {
         #ruch wprzod
         if($GameElements[($a+1),($b+1)].Name -eq 'nic' -and (($a+1) -lt 8) -and (($b+1) -lt 8))
@@ -195,7 +211,7 @@ Write-Host $a, $b
             $GameElements[($a-1),($b+1)].Name = 'available'
         } 
         #bicie przez czarne
-        if($GameElements[($a-1),($b+1)].Name -eq 'white' -and (($a-2) -ge 0) -and (($b+2) -lt 8) )
+        if(($GameElements[($a-1),($b+1)].Name -eq 'white' -or $GameElements[($a-1),($b+1)].Name -eq 'whiteQueen') -and (($a-2) -ge 0) -and (($b+2) -lt 8) )
         {
             if($GameElements[($a-2),($b+2)].Name -eq 'nic')
             {
@@ -204,7 +220,7 @@ Write-Host $a, $b
             }
         } 
 
-        if($GameElements[($a+1),($b+1)].Name -eq 'white' -and (($a+2) -ge 0) -and (($b+2) -lt 8) )
+        if(($GameElements[($a+1),($b+1)].Name -eq 'white' -or $GameElements[($a+1),($b+1)].Name -eq 'whiteQueen') -and (($a+2) -ge 0) -and (($b+2) -lt 8) )
         {
             if($GameElements[($a+2),($b+2)].Name -eq 'nic')
             {
@@ -214,7 +230,7 @@ Write-Host $a, $b
         } 
 
         #bicie przez czarne w tyl
-        if($GameElements[($a-1),($b-1)].Name -eq 'white' -and (($a-2) -ge 0) -and (($b-2) -lt 8) )
+        if(($GameElements[($a-1),($b-1)].Name -eq 'white' -or $GameElements[($a+1),($b+1)].Name -eq 'whiteQueen') -and (($a-2) -ge 0) -and (($b-2) -lt 8) )
         {
             if($GameElements[($a-2),($b-2)].Name -eq 'nic')
             {
@@ -223,7 +239,7 @@ Write-Host $a, $b
             }
         } 
 
-        if($GameElements[($a+1),($b-1)].Name -eq 'white' -and (($a+2) -ge 0) -and (($b-2) -lt 8) )
+        if(($GameElements[($a+1),($b-1)].Name -eq 'white' -or $GameElements[($a+1),($b-1)].Name -eq 'whiteQueen') -and (($a+2) -ge 0) -and (($b-2) -lt 8) )
         {
             if($GameElements[($a+2),($b-2)].Name -eq 'nic')
             {
@@ -236,7 +252,7 @@ Write-Host $a, $b
         $global:checkedCoordinates = $a, $b      
     }
 
-    if($GameElements[$a,$b].Name -eq 'white' -and $global:checkersType -eq "white")
+    if($GameElements[$a,$b].Name -eq 'white' -or $GameElements[$a,$b].Name -eq 'whiteQueen' -and $global:checkersType -eq "white")
     {
         #ruch wprzod bialymi
         if($GameElements[($a-1),($b-1)].Name -eq 'nic' -and (($a-1) -ge 0) -and (($b-1) -ge 0))
@@ -251,7 +267,7 @@ Write-Host $a, $b
         }   
 
         #bicie przez białe
-        if($GameElements[($a-1),($b-1)].Name -eq 'black' -and (($a-2) -ge 0) -and (($b-2) -lt 8) )
+        if(($GameElements[($a-1),($b-1)].Name -eq 'black' -or $GameElements[($a-1),($b-1)].Name -eq 'blackQueen') -and (($a-2) -ge 0) -and (($b-2) -lt 8) )
         {
             if($GameElements[($a-2),($b-2)].Name -eq 'nic')
             {
@@ -260,7 +276,7 @@ Write-Host $a, $b
             }
         } 
 
-        if($GameElements[($a+1),($b-1)].Name -eq 'black' -and (($a+2) -ge 0) -and (($b-2) -lt 8) )
+        if(($GameElements[($a+1),($b-1)].Name -eq 'black' -or $GameElements[($a+1),($b-1)].Name -eq 'blackQueen') -and (($a+2) -ge 0) -and (($b-2) -lt 8) )
         {
             if($GameElements[($a+2),($b-2)].Name -eq 'nic')
             {
@@ -270,7 +286,7 @@ Write-Host $a, $b
         } 
 
         #bicie przez białe w tyl
-        if($GameElements[($a-1),($b+1)].Name -eq 'black' -and (($a-2) -ge 0) -and (($b+2) -lt 8) )
+        if(($GameElements[($a-1),($b+1)].Name -eq 'black' -or $GameElements[($a-1),($b+1)].Name -eq 'blackQueen') -and (($a-2) -ge 0) -and (($b+2) -lt 8) )
         {
             if($GameElements[($a-2),($b+2)].Name -eq 'nic')
             {
@@ -279,7 +295,7 @@ Write-Host $a, $b
             }
         } 
 
-        if($GameElements[($a+1),($b+1)].Name -eq 'black' -and (($a+2) -ge 0) -and (($b+2) -lt 8) )
+        if(($GameElements[($a+1),($b+1)].Name -eq 'black' -or $GameElements[($a+1),($b+1)].Name -eq 'blackQueen') -and (($a+2) -ge 0) -and (($b+2) -lt 8) )
         {
             if($GameElements[($a+2),($b+2)].Name -eq 'nic')
             {
@@ -287,22 +303,100 @@ Write-Host $a, $b
                 $GameElements[($a+2),($b+2)].Name = 'available'
             }
         } 
+              
+       }
 
-        ##sprawdzanie dostapnych ruchow i bic dla krolowych
-        For ([int]$i=0; $i -lt 8; $i++)   
+       ##sprawdzanie dostepnych ruchow i bic dla krolowych czarnych
+        if($GameElements[($a),($b)].Name -eq 'blackQueen' -and $global:checkersType -eq "black")
         {
-            For ($j=0; $j -lt 8; $j++) 
-            {
+                For ([int]$i=1; $i -lt 8; $i++)   
+                {
+                    if((($a+$i) -lt 8) -and (($b+$i) -lt 8))
+                    {
+                        if($GameElements[($a+$i),($b+$i)].Name -eq 'nic')
+                        {
+                            $GameElements[($a+$i),($b+$i)].Image = $availableMove
+                            $GameElements[($a+$i),($b+$i)].Name = 'available'
+                        }
+                    }
+                    
+                    if((($a-$i) -ge 0) -and (($b-$i) -ge 0))
+                    {
+                        if($GameElements[($a-$i),($b-$i)].Name -eq 'nic')
+                        {
+                            $GameElements[($a-$i),($b-$i)].Image = $availableMove
+                            $GameElements[($a-$i),($b-$i)].Name = 'available'
+                        }
+                    }
 
+                    if((($a+$i) -lt 8) -and (($b-$i) -ge 0))
+                    {
+                        if($GameElements[($a+$i),($b-$i)].Name -eq 'nic')
+                        {
+                            $GameElements[($a+$i),($b-$i)].Image = $availableMove
+                            $GameElements[($a+$i),($b-$i)].Name = 'available'
+                        }
+                    }
+
+                    if((($a-$i) -ge 0) -and (($b+$i) -lt 8))
+                    {
+                        if($GameElements[($a-$i),($b+$i)].Name -eq 'nic')
+                        {
+                            $GameElements[($a-$i),($b+$i)].Image = $availableMove
+                            $GameElements[($a-$i),($b+$i)].Name = 'available'
+                        }
+                    }
+                }
+            }
+
+       ##sprawdzanie dostepnych ruchow i bic dla krolowych bialych
+        if($GameElements[($a),($b)].Name -eq 'whiteQueen' -and $global:checkersType -eq "white")
+        {
+            For ([int]$i=1; $i -lt 8; $i++)   
+            {
+                if((($a+$i) -lt 8) -and (($b+$i) -lt 8))
+                {
+                    if($GameElements[($a+$i),($b+$i)].Name -eq 'nic')
+                    {
+                        $GameElements[($a+$i),($b+$i)].Image = $availableMove
+                        $GameElements[($a+$i),($b+$i)].Name = 'available'
+                    }
+                    elseif($GameElements[($a+$i),($b+$i)].Name -eq 'nic')
+                    {
+                        $GameElements[($a+$i),($b+$i)].Name = 'availableBeat'
+                    }
+                }
+
+                if((($a-$i) -ge 0) -and (($b-$i) -ge 0))
+                {
+                    if($GameElements[($a-$i),($b-$i)].Name -eq 'nic')
+                    {
+                        $GameElements[($a-$i),($b-$i)].Image = $availableMove
+                        $GameElements[($a-$i),($b-$i)].Name = 'available'
+                    }
+                }
+
+                if((($a+$i) -ge 8) -and (($b-$i) -ge 0))
+                {
+                    if($GameElements[($a+$i),($b-$i)].Name -eq 'nic')
+                    {
+                        $GameElements[($a+$i),($b-$i)].Image = $availableMove
+                        $GameElements[($a+$i),($b-$i)].Name = 'available'
+                    }
+                }
+
+                if((($a-$i) -ge 0) -and (($b+$i) -lt 8))
+                {
+                    if($GameElements[($a-$i),($b+$i)].Name -eq 'nic')
+                    {
+                        $GameElements[($a-$i),($b+$i)].Image = $availableMove
+                        $GameElements[($a-$i),($b+$i)].Name = 'available'
+                    }
+                }
             }
         }
 
-
-
-        $global:checkedCoordinates = $a, $b     
-    }
-
-    
+        $global:checkedCoordinates = $a, $b       
 }        
 
 Function checkersElementMove ($a, $b)
@@ -730,7 +824,7 @@ For ([int]$i=0; $i -lt 8; $i++)
             }
             
             $GameElements[$i,$j].Visible=1
-            $GameElements[$i,$j].Location = New-Object System.Drawing.Size((300+ $i * $Image.Width),(100 + $j*$Image.Height))
+            $GameElements[$i,$j].Location = New-Object System.Drawing.Size((250+ $i * $Image.Width),(70 + $j*$Image.Height))
                    
 
             $temp =10*$i+$j
